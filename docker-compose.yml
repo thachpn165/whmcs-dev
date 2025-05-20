@@ -1,0 +1,54 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: whmcs-nginx
+    ports:
+      - "280:80"
+      - "2443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./whmcs:/var/www/html
+      - ./nginx/certs:/etc/nginx/ssl
+    depends_on:
+      - php
+    networks:
+      - whmcs-net
+
+  php:
+    image: bitnami/php-fpm:8.2
+    container_name: whmcs-php
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_ENABLE_OPCACHE=yes
+      - PHP_ERROR_REPORTING=E_WARNING
+      - PHP_DISPLAY_ERRORS=1
+      - PHP_DISPLAY_STARTUP_ERRORS=1
+      - BITNAMI_DEBUG=true
+    volumes:
+      - ./whmcs:/var/www/html
+      - ./php/custom.ini:/opt/bitnami/php/etc/conf.d/custom.ini
+    depends_on:
+      - mariadb
+    networks:
+      - whmcs-net
+
+  mariadb:
+    image: mariadb:10.6
+    container_name: whmcs-mariadb
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=whmcs_root_pass
+      - MYSQL_DATABASE=whmcs
+      - MYSQL_USER=whmcs_user
+      - MYSQL_PASSWORD=whmcs_pass
+    volumes:
+      - whmcs-db-data:/var/lib/mysql
+    networks:
+      - whmcs-net
+
+volumes:
+  whmcs-db-data:
+
+networks:
+  whmcs-net:
+    driver: bridge
