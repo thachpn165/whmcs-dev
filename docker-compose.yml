@@ -26,7 +26,7 @@ services:
       - BITNAMI_DEBUG=true
     volumes:
       - ./whmcs:/var/www/html
-      - ./php/custom.ini:/opt/bitnami/php/etc/conf.d/custom.ini
+      - ./php/php.ini:/opt/bitnami/php/lib/php.ini 
       - ./php/ioncube_loader_lin_8.2.so:/opt/bitnami/php/lib/php/extensions/ioncube_loader_lin_8.2.so
     depends_on:
       - mariadb
